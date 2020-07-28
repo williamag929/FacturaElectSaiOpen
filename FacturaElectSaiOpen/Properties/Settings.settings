@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="FacturaElectSaiOpen.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="connectionstring" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">database=localhost:/c:/copia/dbSaiOpen/prueba.fdb;user=sysdba;password=masterkey</Value>
+    </Setting>
+    <Setting Name="urlservice" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://emision21.thefactoryhka.com.co/ws/v1.0/Service.svc?wsdl</Value>
+    </Setting>
+    <Setting Name="token" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">6e4c2c5e37d344e900621e211f653b07d58cb87f</Value>
+    </Setting>
+    <Setting Name="tokenpassword" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">e137399abadc794681b858af6d0f55f30c196ade</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

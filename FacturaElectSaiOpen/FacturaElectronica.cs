@@ -174,7 +174,7 @@ namespace FacturaElectSaiOpen
             direccionFiscal.buzon = null;
             direccionFiscal.calle = null;
             direccionFiscal.calleAdicional = null;
-            direccionFiscal.ciudad = f.codciudad;
+            direccionFiscal.ciudad = f.ciudad;
             direccionFiscal.codigoDepartamento = f.coddepto;
             direccionFiscal.correccionHusoHorario = null;
             direccionFiscal.departamento = f.departamento;
@@ -236,7 +236,7 @@ namespace FacturaElectSaiOpen
 
             cliente.segundoNombre = null;
             cliente.telefax = null;
-            cliente.telefono = null;
+            cliente.telefono = f.telefono1;
             cliente.tipoIdentificacion = f.tipoIdentificacion;
             cliente.tipoPersona = f.tipoPersona;
 
@@ -570,6 +570,7 @@ namespace FacturaElectSaiOpen
                     FacturaImpuestos impuestoGeneral2 = new FacturaImpuestos();
                     impuestoGeneral2.baseImponibleTOTALImp = Math.Round(f.baseretencion, 2).ToString();
                     impuestoGeneral2.codigoTOTALImp = "06";
+                    f.porcretefuente = f.retefuente / f.baseretencion * 100;
                     impuestoGeneral2.porcentajeTOTALImp = Math.Round(f.porcretefuente, 2).ToString();
                     impuestoGeneral2.unidadMedida = "WSD";
                     impuestoGeneral2.valorTOTALImp = Math.Round(f.retefuente, decimales).ToString();
@@ -936,7 +937,11 @@ namespace FacturaElectSaiOpen
                     if (docRespuesta.codigo == 109)
                     {
                         //Value cannot be null.\r\nParameter name: input
-                        resp.mensaje = "Verificar correo electronico";
+
+                        foreach (var d in docRespuesta.mensajesValidacion)
+                        {
+                            resp.mensaje = resp.mensaje +", "+  d;
+                        }
                     }
                     else
                     {

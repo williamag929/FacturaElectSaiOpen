@@ -30,20 +30,21 @@
         {
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.button2 = new System.Windows.Forms.Button();
             this.btnEstado = new System.Windows.Forms.Button();
             this.btnPDF = new System.Windows.Forms.Button();
             this.btnXml = new System.Windows.Forms.Button();
             this.btnEmitir = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.dtpHasta = new System.Windows.Forms.DateTimePicker();
             this.dtpDesde = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbDocumento = new System.Windows.Forms.ComboBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.chkImpuesto = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -66,7 +67,7 @@
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 100);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 114);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -80,9 +81,19 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView1);
-            this.splitContainer1.Size = new System.Drawing.Size(1396, 423);
+            this.splitContainer1.Size = new System.Drawing.Size(1396, 409);
             this.splitContainer1.SplitterDistance = 135;
             this.splitContainer1.TabIndex = 1;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(37, 161);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 11;
+            this.button2.Text = "Ver Log";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // btnEstado
             // 
@@ -136,11 +147,12 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(1257, 423);
+            this.dataGridView1.Size = new System.Drawing.Size(1257, 409);
             this.dataGridView1.TabIndex = 0;
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.chkImpuesto);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label2);
@@ -151,8 +163,18 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1396, 100);
+            this.panel2.Size = new System.Drawing.Size(1396, 114);
             this.panel2.TabIndex = 0;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(946, 43);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(113, 23);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Consultar";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Fill);
             // 
             // label3
             // 
@@ -213,25 +235,15 @@
             this.cmbDocumento.Size = new System.Drawing.Size(238, 24);
             this.cmbDocumento.TabIndex = 0;
             // 
-            // button1
+            // chkImpuesto
             // 
-            this.button1.Location = new System.Drawing.Point(946, 43);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(113, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Consultar";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Fill);
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(37, 161);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 11;
-            this.button2.Text = "Ver Log";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.chkImpuesto.AutoSize = true;
+            this.chkImpuesto.Location = new System.Drawing.Point(164, 72);
+            this.chkImpuesto.Name = "chkImpuesto";
+            this.chkImpuesto.Size = new System.Drawing.Size(153, 21);
+            this.chkImpuesto.TabIndex = 7;
+            this.chkImpuesto.Text = "Recalcula Impuesto";
+            this.chkImpuesto.UseVisualStyleBackColor = true;
             // 
             // FrmVistaGrl
             // 
@@ -273,6 +285,7 @@
         private System.Windows.Forms.ComboBox cmbDocumento;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.CheckBox chkImpuesto;
     }
 }
 

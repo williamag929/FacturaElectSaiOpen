@@ -60,7 +60,7 @@ namespace FacturaElectSaiOpen
             f.dv = r["cv"].ToString().Trim();
             f.company = r["company"].ToString().Trim();
             f.direccion = r["direccion"].ToString().Trim();
-            f.telefono1 = r["telefono1"].ToString().Trim();
+            f.telefono1 = r["telefono1"].ToString().Trim().Replace(" ","");
             f.codciudad = r["cod_ciudad"].ToString().Trim();
             f.ciudad = r["city"].ToString().Trim();
             f.coddepto = r["cod_dpto"].ToString().Trim();

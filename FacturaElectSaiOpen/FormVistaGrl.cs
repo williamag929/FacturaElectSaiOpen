@@ -92,8 +92,40 @@ namespace FacturaElectSaiOpen
             {
                 FbData fb = new FbData();
 
+                string sql = "";
+                string clase = "";
+
+
+
+
                 var tipo = dataGridView1.SelectedRows[0].Cells[1].Value;
                 var numero = dataGridView1.SelectedRows[0].Cells[2].Value;
+
+
+                #region aplicaredondeoimpuesto
+
+                clase = Getclasefactura(tipo);
+
+                if (chkImpuesto.Checked)
+                {
+
+                    sql = "update oedet set vlr_iva = extend * porc_iva / 100 where tipo = '" + clase + "' and number = " + numero.ToString();
+
+                    fb.ExecuteNonQuery(sql);
+
+                    sql = "update oe set salestax = (select sum(vlr_iva) from oedet where oedet.tipo = oe.tipo and oedet.number = oe.number) " +
+                           " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
+
+                    fb.ExecuteNonQuery(sql);
+
+                    sql = "update oe set total = subtotal + salestax - disc1 - disc2 - disc3 " +
+                    " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
+
+                    fb.ExecuteNonQuery(sql);
+                }
+
+
+                #endregion
 
                 FacturaElectronica fe = new FacturaElectronica();
 
@@ -111,7 +143,7 @@ namespace FacturaElectSaiOpen
                 " and actividad_eco_det.id_n = OE.ID_N";
 
 
-                var sql = "SELECT OE.ID_EMPRESA, " +
+                sql = "SELECT OE.ID_EMPRESA, " +
                 "OE.ID_SUCURSAL, TIPDOC.SIGLA AS TIPO,OE.NUMBER, OE.FECHA, OE.DUEDATE FECHAVENC, CUST.ID_N, CUST.CV,CUST.COMPANY, CUST.ADDR1 direccion,CUST.PHONE1 telefono1, " +
                 " CIUDADES.CODIGO COD_CIUDAD,SHIPTO.CITY,SHIPTO.COD_DPTO,SHIPTO.DEPARTAMENTO,SHIPTO.EMAIL,OE.OCNUMERO,OE.NROREMISION,OE.COMMENTS, " +
                 " TRIBUTARIA_TIPODOCUMENTO.TDOC CODTIPOIDENTIFICACION,TRIBUTARIA_TIPODOCUMENTO.DESCRIPCION DESCTIPOIDENTIFICACION, " +
@@ -177,7 +209,7 @@ namespace FacturaElectSaiOpen
                 {
 
 
-                    string clase =   Getclasefactura(tipo);
+                    //string clase =   Getclasefactura(tipo);
 
                     sql = "update oe set cufe = '" + data.cufe + "', procesadoDian ='S' where tipo='" + clase + "' and number=" + numero.ToString();
 

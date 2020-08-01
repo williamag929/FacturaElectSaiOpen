@@ -820,7 +820,7 @@ namespace FacturaElectSaiOpen
             }
 
 
-            factura.tipoOperacion = "05";  //GENERICA  //Servicios AIU
+            factura.tipoOperacion = "10";  //GENERICA  //Servicios AIU
             factura.totalAnticipos = null;
             factura.totalBaseImponible = Math.Round(f.subtotal + totbasimpMuestraG, decimales).ToString(); //revisar para aplicacion AIU
             factura.totalBrutoConImpuesto = Math.Round(f.subtotal + f.impuesto, decimales).ToString();

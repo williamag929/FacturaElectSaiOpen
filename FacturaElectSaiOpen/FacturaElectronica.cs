@@ -69,6 +69,13 @@ namespace FacturaElectSaiOpen
             public decimal valor { get; set; }
         }
 
+        public class unidadmedida
+        {
+            public string codigo { get; set; }
+            public string descripcion { get; set; }
+            public string equivalente { get; set; }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -108,6 +115,17 @@ namespace FacturaElectSaiOpen
             f = fc.getfacturaenc(tipodoc, numero);
 
 
+            List<unidadmedida> unidades = new List<unidadmedida>();
+
+            unidades.Add(new unidadmedida { codigo = "94", descripcion = "Unidad", equivalente = "und" });
+            unidades.Add(new unidadmedida { codigo = "LBR", descripcion = "Libra", equivalente = "lb" });
+            unidades.Add(new unidadmedida { codigo = "LBR", descripcion = "Libra", equivalente = "lbr" });
+            unidades.Add(new unidadmedida { codigo = "PK", descripcion = "Paquete", equivalente = "paq" });
+            unidades.Add(new unidadmedida { codigo = "PA", descripcion = "Paquete", equivalente = "pa" });
+            unidades.Add(new unidadmedida { codigo = "MTR", descripcion = "Metro", equivalente = "mtr" });
+            unidades.Add(new unidadmedida { codigo = "CGR", descripcion = "Gramo", equivalente = "gr" });
+            unidades.Add(new unidadmedida { codigo = "KGM", descripcion = "Kilogramo", equivalente = "kgr" });
+            unidades.Add(new unidadmedida { codigo = "KGM", descripcion = "Kilogramo", equivalente = "kg" });
 
             //validar que el tercero tenga correo
             //validar que el tercero tenga codigo CIIU
@@ -272,7 +290,19 @@ namespace FacturaElectSaiOpen
                 FacturaDetalle producto1 = new FacturaDetalle();
                 producto1.cantidadPorEmpaque = "1";
                 producto1.cantidadReal = Math.Round(item.cantidad, decimales).ToString();
-                producto1.cantidadRealUnidadMedida = "WSD";
+                //producto1.cantidadRealUnidadMedida = "WSD";
+
+                var existeund = unidades.Where(c => c.codigo == item.unidadmedida);
+
+                producto1.cantidadRealUnidadMedida = item.unidadmedida;
+
+                if (existeund.Count() == 0)
+                {
+                    producto1.cantidadRealUnidadMedida = "WSD";
+                }
+
+                
+
                 producto1.cantidadUnidades = Math.Round(item.cantidad, decimales).ToString();
                 producto1.cargosDescuentos = null;
                 if (item.descuentovalor > 0)
@@ -382,12 +412,12 @@ namespace FacturaElectSaiOpen
                 //producto1.nota = null;
 
 
-                producto1.secuencia = i.ToString();
+                producto1.secuencia = (i+1).ToString();
                 producto1.seriales = null;
                 producto1.subCodigoFabricante = null;
                 producto1.subCodigoProducto = null;
                 producto1.tipoAIU = null;
-                producto1.unidadMedida = "WSD";
+                producto1.unidadMedida = item.unidadmedida;
 
 
 
@@ -404,7 +434,7 @@ namespace FacturaElectSaiOpen
             #region documentosReferenciados
 
             //si el documento es la factura envia null
-            if (f.prefjo == ConfigurationManager.AppSettings.Get("prefijofe"))
+            if (f.prefijo == ConfigurationManager.AppSettings.Get("prefijofe"))
             {
 
                 factura.documentosReferenciados = null;
@@ -803,18 +833,18 @@ namespace FacturaElectSaiOpen
             factura.terminosEntrega = null;
             #endregion
 
-
-            if (f.prefjo == ConfigurationManager.AppSettings.Get("prefijofe"))
+            // TIPO TRANSACCION
+            if (f.prefijo == ConfigurationManager.AppSettings.Get("prefijofe"))
             {
                 factura.tipoDocumento = "01";  //1 FACTURA VENTA NACIONAL  2 Factura de Exportación  3 Factura de Contingencia 91 Nota Crédito (Exclusivo en referencias a documentos) 92 Nota Débito (Exclusivo en referencias a documentos)
             }
 
-            if (f.prefjo == ConfigurationManager.AppSettings.Get("prefijond"))
+            if (f.prefijo == ConfigurationManager.AppSettings.Get("prefijond"))
             {
                 factura.tipoDocumento = "92"; //nota debito
             }
 
-            if (f.prefjo == ConfigurationManager.AppSettings.Get("prefijonc"))
+            if (f.prefijo == ConfigurationManager.AppSettings.Get("prefijonc"))
             {
                 factura.tipoDocumento = "91"; //nota credito
             }

@@ -43,7 +43,7 @@ namespace FacturaElectSaiOpen
 
             FbData fb = new FbData();
 
-            var sql = "select a.fecha,TIPDOC.SIGLA AS tipo,a.number numero,b.id_n nit,b.company Cliente,a.subtotal,a.salestax impuesto, " +
+            var sql = "select TIPDOC.SIGLA AS tipo,a.number numero,  a.fecha,b.id_n nit,b.company Cliente,a.subtotal,a.salestax impuesto, " +
                 " a.total, coalesce(a.procesadodian, 'N') procesado, coalesce(a.cufe, '') cufe " +
                  " from oe a,tipdoc, cust b where a.tipo = tipdoc.clase and a.id_n = b.id_n and a.fecha between '" + dtpDesde.Value.ToString("yyyy-MM-dd") + "' and '" + dtpHasta.Value.ToString("yyyy-MM-dd") + "' ";
 
@@ -87,143 +87,145 @@ namespace FacturaElectSaiOpen
 
         private void btnEmitir_Click(object sender, EventArgs e)
         {
-            //procesa factura
-            if (dataGridView1.SelectedRows.Count > 0)
+            FbData fb = new FbData();
+
+            string sql = "";
+            string clase = "";
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
             {
-                FbData fb = new FbData();
 
-                string sql = "";
-                string clase = "";
-
-
-
-
-                var tipo = dataGridView1.SelectedRows[0].Cells[1].Value;
-                var numero = dataGridView1.SelectedRows[0].Cells[2].Value;
-
-
-                #region aplicaredondeoimpuesto
-
-                clase = Getclasefactura(tipo);
-
-                if (chkImpuesto.Checked)
+                if (Convert.ToBoolean(row.Cells[0].Value) == true)
                 {
-
-                    sql = "update oedet set vlr_iva = extend * porc_iva / 100 where tipo = '" + clase + "' and number = " + numero.ToString();
-
-                    fb.ExecuteNonQuery(sql);
-
-                    sql = "update oe set salestax = (select sum(vlr_iva) from oedet where oedet.tipo = oe.tipo and oedet.number = oe.number) " +
-                           " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
-
-                    fb.ExecuteNonQuery(sql);
-
-                    sql = "update oe set total = subtotal + salestax - disc1 - disc2 - disc3 " +
-                    " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
-
-                    fb.ExecuteNonQuery(sql);
-                }
+                    var tipo = row.Cells[1].Value;
+                    var numero = row.Cells[2].Value;
 
 
-                #endregion
+                    #region aplicaredondeoimpuesto
 
-                FacturaElectronica fe = new FacturaElectronica();
+                    clase = Getclasefactura(tipo);
 
-
-                #region validar datos
-
-                var f = new FacturaEnc();
-
-                FbData db = new FbData();
-
-                var sqlciiu = "select FIRST 1 actividad_eco_enc.cod_internacional " +
-                " from actividad_eco_enc, actividad_eco_det " +
-                " where actividad_eco_enc.codact = actividad_eco_det.codact " +
-                " and actividad_eco_det.principal = 'S' " +
-                " and actividad_eco_det.id_n = OE.ID_N";
-
-
-                sql = "SELECT OE.ID_EMPRESA, " +
-                "OE.ID_SUCURSAL, TIPDOC.SIGLA AS TIPO,OE.NUMBER, OE.FECHA, OE.DUEDATE FECHAVENC, CUST.ID_N, CUST.CV,CUST.COMPANY, CUST.ADDR1 direccion,CUST.PHONE1 telefono1, " +
-                " CIUDADES.CODIGO COD_CIUDAD,SHIPTO.CITY,SHIPTO.COD_DPTO,SHIPTO.DEPARTAMENTO,SHIPTO.EMAIL,OE.OCNUMERO,OE.NROREMISION,OE.COMMENTS, " +
-                " TRIBUTARIA_TIPODOCUMENTO.TDOC CODTIPOIDENTIFICACION,TRIBUTARIA_TIPODOCUMENTO.DESCRIPCION DESCTIPOIDENTIFICACION, " +
-                " TRIBUTARIA_TIPOCONTRIBUYENTE.CODIGO CODTIPOPERSONA,TRIBUTARIA_TIPOCONTRIBUYENTE.DESCRIPCION DESCRIPCIONTIPOPERSONA, " +
-                "(OE.SUBTOTAL - OE.DESTOTAL) VLRBRUTO,OE.SUBTOTAL,OE.SALESTAX IMPUESTO,OE.TOTAL,coalesce(OE.PORCRTFTE,0) PORCRTFTE,coalesce(OE.DISC1,0) retefuente, " +
-                " coalesce(OE.DISC3,0) RETEIVA,coalesce(OE.DISC2,0) RETEICA,OE.DESTOTAL,coalesce((" + sqlciiu + "),'') CODIGOCIIU,OE.DEV_FACTURA CRUCENUMERO, OE.DEV_TIPOFAC CRUCETIPO,OE.CUFE " +
-                "FROM CUST,OE,SHIPTO,TRIBUTARIA,TRIBUTARIA_TIPOCONTRIBUYENTE,TRIBUTARIA_TIPODOCUMENTO,TIPDOC,CIUDADES " +
-                "WHERE((CUST.ID_N = OE.ID_N) " +
-                " AND(CUST.ID_N = SHIPTO.ID_N) " +
-                " AND(OE.ID_N = TRIBUTARIA.ID_N) " +
-                " AND(OE.SHIPTO = SHIPTO.SUCCLIENTE) " +
-                " AND(SHIPTO.CITY = CIUDADES.CIUDAD AND CIUDADES.ID_DEPTO = SHIPTO.COD_DPTO) " +
-                " AND (OE.TIPO = TIPDOC.CLASE) " +
-                " AND(TRIBUTARIA.TDOC = TRIBUTARIA_TIPODOCUMENTO.TDOC) " +
-                " AND(TRIBUTARIA.TIPO_CONTRIBUYENTE = TRIBUTARIA_TIPOCONTRIBUYENTE.CODIGO OR TRIBUTARIA.TIPO_CONTRIBUYENTE = 0 )) " +
-                " AND(((OE.ID_EMPRESA = 1) " +
-                " AND(TIPDOC.SIGLA = '" + tipo + "') " +
-                " AND(OE.NUMBER = " + numero + ")))";
-
-
-                var da = db.DataReader(sql);
-
-                DataTable dt = new DataTable();
-
-                da.Fill(dt);
-
-                try
-                {
-
-
-                    var r = dt.Rows[0];
-
-                    var correoe = r["email"].ToString().Trim();
-
-                    if (correoe =="")
+                    if (chkImpuesto.Checked)
                     {
-                        MessageBox.Show("Verificar correo electronico");
+
+                        sql = "update oedet set vlr_iva = (((price*qtyship)-totaldct) * porc_iva / 100) where tipo = '" + clase + "' and number = " + numero.ToString();
+
+                        fb.ExecuteNonQuery(sql);
+
+                        sql = "update oe set salestax = (select sum(vlr_iva) from oedet where oedet.tipo = oe.tipo and oedet.number = oe.number) " +
+                               " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
+
+                        fb.ExecuteNonQuery(sql);
+
+                        sql = "update oe set total = subtotal + salestax - coalesce(disc1,0) - coalesce(disc2,0) - coalesce(disc3,0) " +
+                        " where oe.tipo = '" + clase + "' and number = " + numero.ToString();
+
+                        fb.ExecuteNonQuery(sql);
                     }
 
-                    var tipodoident = r["CODTIPOIDENTIFICACION"].ToString();
-                    var ciiu = r["CODIGOCIIU"].ToString();
 
-                    if (tipodoident == "31" && ciiu =="" )
+                    #endregion
+
+                    FacturaElectronica fe = new FacturaElectronica();
+
+
+                    #region validar datos
+
+                    var f = new FacturaEnc();
+
+                    FbData db = new FbData();
+
+                    var sqlciiu = "select FIRST 1 actividad_eco_enc.cod_internacional " +
+                    " from actividad_eco_enc, actividad_eco_det " +
+                    " where actividad_eco_enc.codact = actividad_eco_det.codact " +
+                    " and actividad_eco_det.principal = 'S' " +
+                    " and actividad_eco_det.id_n = OE.ID_N";
+
+
+                    sql = "SELECT OE.ID_EMPRESA, " +
+                    "OE.ID_SUCURSAL, TIPDOC.SIGLA AS TIPO,OE.NUMBER, OE.FECHA, OE.DUEDATE FECHAVENC, CUST.ID_N, CUST.CV,CUST.COMPANY, CUST.ADDR1 direccion,CUST.PHONE1 telefono1, " +
+                    " CIUDADES.CODIGO COD_CIUDAD,SHIPTO.CITY,SHIPTO.COD_DPTO,SHIPTO.DEPARTAMENTO,SHIPTO.EMAIL,OE.OCNUMERO,OE.NROREMISION,OE.COMMENTS, " +
+                    " TRIBUTARIA_TIPODOCUMENTO.TDOC CODTIPOIDENTIFICACION,TRIBUTARIA_TIPODOCUMENTO.DESCRIPCION DESCTIPOIDENTIFICACION, " +
+                    " TRIBUTARIA_TIPOCONTRIBUYENTE.CODIGO CODTIPOPERSONA,TRIBUTARIA_TIPOCONTRIBUYENTE.DESCRIPCION DESCRIPCIONTIPOPERSONA, " +
+                    "(OE.SUBTOTAL - OE.DESTOTAL) VLRBRUTO,OE.SUBTOTAL,OE.SALESTAX IMPUESTO,OE.TOTAL,coalesce(OE.PORCRTFTE,0) PORCRTFTE,coalesce(OE.DISC1,0) retefuente, " +
+                    " coalesce(OE.DISC3,0) RETEIVA,coalesce(OE.DISC2,0) RETEICA,OE.DESTOTAL,coalesce((" + sqlciiu + "),'') CODIGOCIIU,OE.DEV_FACTURA CRUCENUMERO, OE.DEV_TIPOFAC CRUCETIPO,OE.CUFE " +
+                    " FROM CUST,OE,SHIPTO,TRIBUTARIA,TRIBUTARIA_TIPOCONTRIBUYENTE,TRIBUTARIA_TIPODOCUMENTO,TIPDOC,CIUDADES " +
+                    " WHERE((CUST.ID_N = OE.ID_N) " +
+                    " AND(CUST.ID_N = SHIPTO.ID_N) " +
+                    " AND(OE.ID_N = TRIBUTARIA.ID_N) " +
+                    " AND(OE.SHIPTO = SHIPTO.SUCCLIENTE) " +
+                    " AND(SHIPTO.CITY = CIUDADES.CIUDAD AND CIUDADES.ID_DEPTO = SHIPTO.COD_DPTO) " +
+                    " AND (OE.TIPO = TIPDOC.CLASE) " +
+                    " AND(TRIBUTARIA.TDOC = TRIBUTARIA_TIPODOCUMENTO.TDOC) " +
+                    " AND(TRIBUTARIA.TIPO_CONTRIBUYENTE = TRIBUTARIA_TIPOCONTRIBUYENTE.CODIGO OR TRIBUTARIA.TIPO_CONTRIBUYENTE = 0 )) " +
+                    " AND(((OE.ID_EMPRESA = 1) " +
+                    " AND(TIPDOC.SIGLA = '" + tipo + "') " +
+                    " AND(OE.NUMBER = " + numero + ")))";
+
+
+                    var da = db.DataReader(sql);
+
+                    DataTable dt = new DataTable();
+
+                    da.Fill(dt);
+
+                    try
                     {
-                        MessageBox.Show("Verificar codigo ciiu tercero con nit");
+
+
+                        var r = dt.Rows[0];
+
+                        var correoe = r["email"].ToString().Trim();
+
+                        if (correoe == "")
+                        {
+                            MessageBox.Show("Verificar correo electronico "+ numero.ToString());
+                            LogText(tipo.ToString(), numero.ToString(), "Verificar correo electronico ");
+                        }
+
+                        var tipodoident = r["CODTIPOIDENTIFICACION"].ToString();
+                        var ciiu = r["CODIGOCIIU"].ToString();
+
+                        if (tipodoident == "31" && ciiu == "")
+                        {
+                            MessageBox.Show("Verificar codigo ciiu tercero con nit "+ numero.ToString());
+                            LogText(tipo.ToString(), numero.ToString(), "Verificar codigo ciiu tercero con nit ");
+                        }
+
+                    }
+                    catch (Exception error)
+                    {
+                        MessageBox.Show("Verificar datos tributarios/direccion de envio "+ numero.ToString());
+                        LogText(tipo.ToString(), numero.ToString(), "Verificar datos tributarios/direccion de envio ");
                     }
 
-                }
-                catch(Exception error)
-                {
-                    MessageBox.Show("Verificar datos tributarios/direccion de envio");
-                }
-
-                #endregion
+                    #endregion
 
 
 
-                var data = fe.EnviarFactura(tipo.ToString().Trim(), Convert.ToInt32(numero));
+                    var data = fe.EnviarFactura(tipo.ToString().Trim(), Convert.ToInt32(numero));
 
-                MessageBox.Show(tipo + "-" + numero.ToString() + data.mensaje);
+                    //MessageBox.Show(tipo + "-" + numero.ToString() + data.mensaje);
 
-                if (data.codigo == 200 || data.codigo == 201)
-                {
+                    if (data.codigo == 200 || data.codigo == 201)
+                    {
 
 
-                    //string clase =   Getclasefactura(tipo);
+                        //string clase =   Getclasefactura(tipo);
 
-                    sql = "update oe set cufe = '" + data.cufe + "', procesadoDian ='S' where tipo='" + clase + "' and number=" + numero.ToString();
+                        sql = "update oe set cufe = '" + data.cufe + "', procesadoDian ='S' where tipo='" + clase + "' and number=" + numero.ToString();
 
-                    fb.ExecuteNonQuery(sql);
+                        fb.ExecuteNonQuery(sql);
 
+
+                    }
+
+                    LogResult(tipo.ToString(), numero.ToString(), data);
 
                 }
-
-                LogResult(tipo.ToString(), numero.ToString(), data);
             }
-            else
-            {
-                MessageBox.Show("Seleccione una fila");
-            }
+
+
 
             GetFacturas();
         }
@@ -328,106 +330,103 @@ namespace FacturaElectSaiOpen
 
         private void btnXml_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count > 0)
+            foreach (DataGridViewRow row in dataGridView1.Rows)
             {
-                var tipo = dataGridView1.SelectedRows[0].Cells[1].Value.ToString().Trim();
-                var numero = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells[2].Value);
 
-
-
-                FacturaElectronica fe = new FacturaElectronica();
-                var data = fe.DescargarXML_PDF(tipo, numero, "XML");
-
-
-               try
+                if (Convert.ToBoolean(row.Cells[0].Value) == true)
                 {
-                    SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
+                    var tipo = row.Cells[1].Value.ToString().Trim();
+                    var numero = Convert.ToInt32(row.Cells[2].Value);
 
-                    SaveFileDialog1.Title = "Browse XML Files";
 
-                    SaveFileDialog1.DefaultExt = ".xml";
-                    SaveFileDialog1.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
-                    SaveFileDialog1.FilterIndex = 1;
+                    FacturaElectronica fe = new FacturaElectronica();
+                    var data = fe.DescargarXML_PDF(tipo, numero, "XML");
 
-                    if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+
+                    try
                     {
-                        var filename = SaveFileDialog1.FileName;
+                        SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
+
+                        SaveFileDialog1.Title = "Browse XML Files";
+
+                        SaveFileDialog1.DefaultExt = ".xml";
+                        SaveFileDialog1.Filter = "XML files (*.xml)|*.xml|All files (*.*)|*.*";
+                        SaveFileDialog1.FilterIndex = 1;
+
+                        if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            var filename = SaveFileDialog1.FileName;
 
 
-                        File.WriteAllBytes(filename, data);
-                        //FileStream fs = File.Create(filename);
-                        //BinaryWriter bw = new BinaryWriter(fs);
+                            File.WriteAllBytes(filename, data);
+                            //FileStream fs = File.Create(filename);
+                            //BinaryWriter bw = new BinaryWriter(fs);
 
-                        System.Diagnostics.Process.Start(filename);
+                            System.Diagnostics.Process.Start(filename);
 
+                            MessageBox.Show("Archivo null.");
+                        }
+                    }
+                    catch
+                    {
                         MessageBox.Show("Archivo null.");
+
+                        LogText(tipo.ToString(), numero.ToString(), "Archivo vacio");
+
+                        // LogResult(tipo.ToString(), numero.ToString(), "Archivo vacio");
                     }
                 }
-                catch
-                {
-                    MessageBox.Show("Archivo null.");
-
-                    LogText(tipo.ToString(), numero.ToString(), "Archivo vacio");
-
-                    // LogResult(tipo.ToString(), numero.ToString(), "Archivo vacio");
-                }
             }
-            else
-            {
-                MessageBox.Show("Seleccione una fila");
-            }
-
 
         }
 
         private void btnPDF_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count > 0)
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
             {
-                var tipo = dataGridView1.SelectedRows[0].Cells[1].Value.ToString().Trim();
-                var numero = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells[2].Value);
 
-                //tipo = "SETT";
-                //numero = 3;
-
-                FacturaElectronica fe = new FacturaElectronica();
-                var data = fe.DescargarXML_PDF(tipo.ToString(), numero);
-
-                try
-                { 
-
-                    SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
-
-                    SaveFileDialog1.Title = "Browse PDF Files";
-
-                    SaveFileDialog1.DefaultExt = ".pdf";
-
-                    SaveFileDialog1.Filter = "Pdf files (*.pdf)|*.pdf|All files (*.*)|*.*";
-                    SaveFileDialog1.FilterIndex = 1;
-
-                    if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
-                    {
-                        var filename = SaveFileDialog1.FileName;
-
-
-                        File.WriteAllBytes(filename, data);
-                        //FileStream fs = File.Create(filename);
-                        //BinaryWriter bw = new BinaryWriter(fs);
-                        System.Diagnostics.Process.Start(filename);
-
-                    }
-                }
-                catch
+                if (Convert.ToBoolean(row.Cells[0].Value) == true)
                 {
-                    MessageBox.Show("Archivo null.");
+                    var tipo =  row.Cells[1].Value.ToString().Trim();
+                    var numero = Convert.ToInt32(row.Cells[2].Value);
+
+
+                    FacturaElectronica fe = new FacturaElectronica();
+                    var data = fe.DescargarXML_PDF(tipo.ToString(), numero);
+
+                    try
+                    {
+
+                        SaveFileDialog SaveFileDialog1 = new SaveFileDialog();
+
+                        SaveFileDialog1.Title = "Browse PDF Files";
+
+                        SaveFileDialog1.DefaultExt = ".pdf";
+
+                        SaveFileDialog1.Filter = "Pdf files (*.pdf)|*.pdf|All files (*.*)|*.*";
+                        SaveFileDialog1.FilterIndex = 1;
+
+                        if (SaveFileDialog1.ShowDialog() == DialogResult.OK)
+                        {
+                            var filename = SaveFileDialog1.FileName;
+
+
+                            File.WriteAllBytes(filename, data);
+                            //FileStream fs = File.Create(filename);
+                            //BinaryWriter bw = new BinaryWriter(fs);
+                            System.Diagnostics.Process.Start(filename);
+
+                        }
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Archivo null.");
+                    }
+
+
+
                 }
-
-
-
-            }
-            else
-            {
-                MessageBox.Show("Seleccione una fila");
             }
 
         }
@@ -487,9 +486,9 @@ namespace FacturaElectSaiOpen
 
             var m_exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (!File.Exists(m_exePath + "\\" + "log.txt"))
+            if (File.Exists(m_exePath +  "/log.txt"))
             {
-                System.Diagnostics.Process.Start(m_exePath + "\\" + "log.txt");
+                System.Diagnostics.Process.Start(m_exePath  +"/log.txt");
             }
         }
     }

@@ -31,7 +31,7 @@ namespace FacturaElectSaiOpen
     public class FacturaEnc
     {
         public string tipodoc { get; set; }
-        public string prefjo { get; set; }
+        public string prefijo { get; set; }
         public int numero { get; set; }
         public int resnumdesde { get; set; }
         public int resmunhasta { get; set; }
@@ -77,6 +77,7 @@ namespace FacturaElectSaiOpen
         public string referencia { get; set; }
         public string descprocucto { get; set; }
         public string descalterna { get; set; }
+        public string unidadmedida { get; set; }
         public decimal cantidad { get; set; }
         public decimal precio { get; set; }
         public decimal porcimp { get; set; }

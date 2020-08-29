@@ -37,6 +37,7 @@
             this.btnEmitir = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.chkImpuesto = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -44,7 +45,7 @@
             this.dtpDesde = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbDocumento = new System.Windows.Forms.ComboBox();
-            this.chkImpuesto = new System.Windows.Forms.CheckBox();
+            this.seleccion = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -142,10 +143,11 @@
             this.dataGridView1.AllowUserToOrderColumns = true;
             this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.seleccion});
             this.dataGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView1.Location = new System.Drawing.Point(0, 0);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 24;
             this.dataGridView1.Size = new System.Drawing.Size(1257, 409);
             this.dataGridView1.TabIndex = 0;
@@ -165,6 +167,16 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1396, 114);
             this.panel2.TabIndex = 0;
+            // 
+            // chkImpuesto
+            // 
+            this.chkImpuesto.AutoSize = true;
+            this.chkImpuesto.Location = new System.Drawing.Point(164, 72);
+            this.chkImpuesto.Name = "chkImpuesto";
+            this.chkImpuesto.Size = new System.Drawing.Size(153, 21);
+            this.chkImpuesto.TabIndex = 7;
+            this.chkImpuesto.Text = "Recalcula Impuesto";
+            this.chkImpuesto.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -235,15 +247,13 @@
             this.cmbDocumento.Size = new System.Drawing.Size(238, 24);
             this.cmbDocumento.TabIndex = 0;
             // 
-            // chkImpuesto
+            // seleccion
             // 
-            this.chkImpuesto.AutoSize = true;
-            this.chkImpuesto.Location = new System.Drawing.Point(164, 72);
-            this.chkImpuesto.Name = "chkImpuesto";
-            this.chkImpuesto.Size = new System.Drawing.Size(153, 21);
-            this.chkImpuesto.TabIndex = 7;
-            this.chkImpuesto.Text = "Recalcula Impuesto";
-            this.chkImpuesto.UseVisualStyleBackColor = true;
+            this.seleccion.FalseValue = "false";
+            this.seleccion.HeaderText = "Seleccion";
+            this.seleccion.Name = "seleccion";
+            this.seleccion.TrueValue = "true";
+            this.seleccion.Width = 75;
             // 
             // FrmVistaGrl
             // 
@@ -286,6 +296,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.CheckBox chkImpuesto;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn seleccion;
     }
 }
 

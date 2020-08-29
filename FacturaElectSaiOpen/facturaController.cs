@@ -53,14 +53,14 @@ namespace FacturaElectSaiOpen
 
             f.numero = Convert.ToInt32(r["number"].ToString());
             f.tipodoc = r["tipo"].ToString().Trim();
-            f.prefjo = r["tipo"].ToString().Trim();
+            f.prefijo = r["tipo"].ToString().Trim();
             f.fecha = Convert.ToDateTime(r["fecha"].ToString());
             f.fechavence = Convert.ToDateTime(r["fechavenc"].ToString());
             f.nit = r["id_n"].ToString().Trim();
             f.dv = r["cv"].ToString().Trim();
             f.company = r["company"].ToString().Trim();
             f.direccion = r["direccion"].ToString().Trim();
-            f.telefono1 = r["telefono1"].ToString().Trim().Replace(" ","");
+            f.telefono1 = r["telefono1"].ToString().Trim().Replace(" ", "");
             f.codciudad = r["cod_ciudad"].ToString().Trim();
             f.ciudad = r["city"].ToString().Trim();
             f.coddepto = r["cod_dpto"].ToString().Trim();
@@ -82,7 +82,7 @@ namespace FacturaElectSaiOpen
             f.reteica = Math.Abs(Convert.ToDecimal(r["RETEICA"].ToString()));
             f.porcreteiva = 0;//Convert.ToDecimal(r["dv"].ToString());
             f.reteiva = Math.Abs(Convert.ToDecimal(r["RETEIVA"].ToString()));
-            f.descuentos = 0; //Convert.ToDecimal(r["DESTOTAL"].ToString());
+            f.descuentos = Convert.ToDecimal(r["DESTOTAL"].ToString());
             f.codigociiu = r["CODIGOCIIU"].ToString();
             f.cufe = r["cufe"].ToString();
             f.crucenumero = r["crucenumero"].ToString();
@@ -119,15 +119,17 @@ namespace FacturaElectSaiOpen
             " OEDET.PRICE PRECIO, " +
             " OEDET.PORC_IVA, " +
             " OEDET.VLR_IVA, " +
-            " coalesce(OEDET.DCT,0) DCTPORC, " +
+            " coalesce(OEDET.DCTFIJO,0) DCTPORC, " +
             " coalesce(OEDET.TOTALDCT,0) DESCUENTOVAL, " +
             " (OEDET.EXTEND) SUBTOTAL, " +
-            " (OEDET.EXTEND + OEDET.VLR_IVA) TOTAL " +
-            "FROM OE,TIPDOC,OEDET, ITEM "+
-            "WHERE OE.TIPO = OEDET.TIPO AND OE.NUMBER = OEDET.NUMBER "+
-            "AND(OE.TIPO = TIPDOC.CLASE) "+
-            "AND OEDET.ITEM = ITEM.ITEM "+
-            "AND(TIPDOC.SIGLA = '"+tipo+"') "+
+            " (OEDET.EXTEND + OEDET.VLR_IVA) TOTAL, " +
+            " UNIDAD.EQUIVALENTE AS UNDMEDIDA "+
+            "FROM OE,TIPDOC,OEDET, ITEM, UNIDAD " +
+            "WHERE OE.TIPO = OEDET.TIPO AND OE.NUMBER = OEDET.NUMBER " +
+            "AND(OE.TIPO = TIPDOC.CLASE) " +
+            "AND OEDET.ITEM = ITEM.ITEM " +
+            "AND OEDET.COD_UNIDAD_VENTA = UNIDAD.COD_UNIDAD " +
+            "AND(TIPDOC.SIGLA = '" + tipo + "') " +
             " AND (OE.NUMBER = " + numero + ")";
 
 
@@ -150,9 +152,12 @@ namespace FacturaElectSaiOpen
                 fe.precio = Math.Abs(Convert.ToDecimal(row["precio"].ToString()));
                 fe.porcimp = Convert.ToDecimal(row["porc_iva"].ToString());
                 fe.impuesto = Math.Abs(Convert.ToDecimal(row["vlr_iva"].ToString()));
-                fe.descuentol = Math.Abs(Convert.ToDecimal(row["dctporc"].ToString()));
+                fe.unidadmedida = Convert.ToString(row["UNDMEDIDA"].ToString());
+
                 fe.descuentovalor = Math.Abs(Convert.ToDecimal(row["descuentoval"].ToString()));
                 fe.subtotal = Math.Abs(Convert.ToDecimal(row["subtotal"].ToString()));
+                fe.descuentol = Math.Abs(fe.descuentovalor / (fe.cantidad * fe.precio) * 100);  // Math.Abs(Convert.ToDecimal(row["dctporc"].ToString()));
+
                 fe.total = Math.Abs(Convert.ToDecimal(row["total"].ToString()));
 
                 lf.Add(fe);
